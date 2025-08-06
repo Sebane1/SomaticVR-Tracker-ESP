@@ -293,6 +293,13 @@ void cmdGet(CmdParser* parser) {
 		} else {
 			logger.info("[TEST] Sensor[0] sent some data, looks working.");
 		}
+		logger.info("Status Report:");
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			SlimeVR::Status::Status status = static_cast<SlimeVR::Status::Status>(1u<<i);
+			if (statusManager.hasStatus(status))
+				logger.info(SlimeVR::Status::statusToString(status));
+		}
 	}
 
 	if (parser->equalCmdParam(1, "WIFISCAN")) {

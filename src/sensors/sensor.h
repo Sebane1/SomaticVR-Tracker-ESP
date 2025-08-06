@@ -64,7 +64,7 @@ public:
 		, m_RegisterInterface(registerInterface)
 		, sensorId(id)
 		, sensorType(type)
-		, sensorOffset({Quat(Vector3(0, 0, 1), rotation)})
+		, sensorOffset({Quat(Vector3(0, 1, 0), rotation)})
 		, m_Logger(SlimeVR::Logging::Logger(sensorName)) {
 		char buf[4];
 		sprintf(buf, "%u", id);

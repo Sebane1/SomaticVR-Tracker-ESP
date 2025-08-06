@@ -28,15 +28,15 @@
 // Set parameters of IMU and board used
 #define IMU IMU_AUTO
 #define SECOND_IMU IMU_AUTO
-#define BOARD BOARD_SLIMEVR_V1_2
-#define IMU_ROTATION DEG_270
+#define BOARD BOARD_SOMATIC_EROS
+#define IMU_ROTATION DEG_180
 #define SECOND_IMU_ROTATION DEG_270
 
 #define PRIMARY_IMU_OPTIONAL false
 #define SECONDARY_IMU_OPTIONAL true
 
 #if BOARD != BOARD_GLOVE_IMU_SLIMEVR_DEV
-#define MAX_SENSORS_COUNT 2
+#define MAX_SENSORS_COUNT 1
 #define TRACKER_TYPE TrackerType::TRACKER_TYPE_SVR_ROTATION
 // Set I2C address here or directly in IMU_DESC_ENTRY for each IMU used
 // If not set, default address is used based on the IMU and Sensor ID
@@ -210,7 +210,7 @@ PIN_IMU_SDA, PRIMARY_IMU_OPTIONAL, BMI160_QMC_REMAP) \
 	SENSOR_INFO_ENTRY(7, SensorPosition::POSITION_LEFT_INDEX_DISTAL)        \
 	SENSOR_INFO_ENTRY(8, SensorPosition::POSITION_LEFT_THUMB_PROXIMAL)      \
 	SENSOR_INFO_ENTRY(9, SensorPosition::POSITION_LEFT_THUMB_DISTAL)
-#elif GLOVE_SDIE == GLOVE_RIGHT
+#elif GLOVE_SIDE == GLOVE_RIGHT
 #define SENSOR_INFO_LIST                                                     \
 	SENSOR_INFO_ENTRY(0, SensorPosition::POSITION_RIGHT_HAND)                \
 	SENSOR_INFO_ENTRY(1, SensorPosition::POSITION_RIGHT_LITTLE_INTERMEDIATE) \
@@ -422,4 +422,33 @@ PIN_IMU_SDA, PRIMARY_IMU_OPTIONAL, BMI160_QMC_REMAP) \
 #ifndef BATTERY_SHIELD_R2
 #define BATTERY_SHIELD_R2 40.2
 #endif
+#elif BOARD == BOARD_SOMATIC_EROS
+  #define PIN_IMU_SDA 8
+  #define PIN_IMU_SCL 7
+  #define PIN_IMU_INT 5
+  #define PIN_IMU_INT_2 255
+  #define PIN_IMU_ENABLE 1
+  #define PIN_CHRG_DONE 1
+  #define PIN_BATTERY_LEVEL 0
+  #define LED_PIN 9
+  #define LED_INVERTED true
+  #define LEDC_FREQ_LED 5000
+  #define LEDC_BITS_LED  12  
+  #define PIN_ENABLE_LATCH 2
+  #define PIN_BUTTON_INPUT 3
+  #define PIN_TACT_MOTOR 6
+  #define LEDC_FREQ_TACT_MOTOR 5000
+  #define LEDC_BITS_TACT_MOTOR  8
+  #define PIN_USB_PD_INT 4
+  #define PIN_CHARGER_INT 10
+  #define TACT_MOTOR_MAX_V  3.0f
+  #ifndef BATTERY_SHIELD_RESISTANCE
+    #define BATTERY_SHIELD_RESISTANCE 0
+  #endif
+  #ifndef BATTERY_SHIELD_R1 
+    #define BATTERY_SHIELD_R1 10
+  #endif
+  #ifndef BATTERY_SHIELD_R2
+    #define BATTERY_SHIELD_R2 45.3
+  #endif
 #endif

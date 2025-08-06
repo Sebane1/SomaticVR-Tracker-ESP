@@ -33,15 +33,25 @@
 #include "ota.h"
 #include "serial/serialcommands.h"
 #include "status/TPSCounter.h"
+#include "ButtonMonitor.h"
+#include "batterymonitor.h"
+#include "ChargerMonitor.h"
+#include "USBPDMonitor.h"
 
 Timer<> globalTimer;
 SlimeVR::Logging::Logger logger("SlimeVR");
 SlimeVR::Sensors::SensorManager sensorManager;
 SlimeVR::LEDManager ledManager(LED_PIN);
+#ifdef PIN_BUTTON_INPUT
+SlimeVR::ButtonMonitor buttonMonitor(PIN_BUTTON_INPUT);
+#endif
 SlimeVR::Status::StatusManager statusManager;
 SlimeVR::Configuration::Configuration configuration;
 SlimeVR::Network::Manager networkManager;
 SlimeVR::Network::Connection networkConnection;
+
+SlimeVR::USBPDMonitor usbPDMonitor(0x22, PIN_USB_PD_INT);
+SlimeVR::ChargerMonitor chargerMonitor(PIN_CHARGER_INT);
 
 #if DEBUG_MEASURE_SENSOR_TIME_TAKEN
 SlimeVR::Debugging::TimeTakenMeasurer sensorMeasurer{"Sensors"};
@@ -57,6 +67,38 @@ BatteryMonitor battery;
 TPSCounter tpsCounter;
 
 void setup() {
+    // For Somatic Eros, pull ENABLE_LATCH high first thing if the button is pressed,
+	//   so the button doesn't need to be held down any longer.
+#ifdef PIN_BUTTON_INPUT
+	buttonMonitor.setup();
+#endif
+#ifdef PIN_ENABLE_LATCH
+    pinMode(PIN_ENABLE_LATCH, OUTPUT);
+    digitalWrite(PIN_ENABLE_LATCH, buttonMonitor.isPressed()?HIGH:LOW);
+#endif
+#ifdef PIN_IMU_ENABLE
+    pinMode(PIN_IMU_ENABLE, OUTPUT);
+    digitalWrite(PIN_IMU_ENABLE, LOW);
+#endif
+#ifdef PIN_BAT_STAT_CHRG
+    pinMode(PIN_BAT_STAT_CHRG, INPUT);
+#endif
+#ifdef PIN_BAT_STAT_CHRG_DONE
+    pinMode(PIN_BAT_STAT_CHRG_DONE, INPUT);
+#endif
+#ifdef PIN_TACT_MOTOR
+    pinMode(PIN_TACT_MOTOR, OUTPUT);
+    digitalWrite(PIN_TACT_MOTOR, buttonMonitor.isPressed()?HIGH:LOW);
+#endif
+#ifdef ESP32C3
+    // Wait for the Computer to be able to connect.
+    delay(1000);
+#ifdef PIN_TACT_MOTOR
+    digitalWrite(PIN_TACT_MOTOR, LOW);
+#endif
+    delay(1000);
+#endif
+
 	Serial.begin(serialBaudRate);
 	globalTimer = timer_create_default();
 
@@ -104,6 +146,9 @@ void setup() {
 	// Wait for IMU to boot
 	delay(500);
 
+	chargerMonitor.setup();
+	usbPDMonitor.setup();
+
 	sensorManager.setup();
 
 	networkManager.setup();
@@ -123,6 +168,8 @@ void loop() {
 	globalTimer.tick();
 	SerialCommands::update();
 	OTA::otaUpdate();
+    chargerMonitor.update();
+    usbPDMonitor.update();
 	networkManager.update();
 
 #if DEBUG_MEASURE_SENSOR_TIME_TAKEN
@@ -134,6 +181,9 @@ void loop() {
 #endif
 
 	battery.Loop();
+#ifdef PIN_BUTTON_INPUT
+	buttonMonitor.update();
+#endif
 	ledManager.update();
 	I2CSCAN::update();
 #ifdef TARGET_LOOPTIME_MICROS
