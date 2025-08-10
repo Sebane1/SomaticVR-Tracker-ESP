@@ -17,4 +17,4 @@ jobs:
       with:
         artifacts: "./build/*.bin"
         draft: true
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.REPOSITORY_TOKEN }}
