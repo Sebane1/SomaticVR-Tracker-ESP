@@ -38,7 +38,7 @@ namespace SlimeVR
     {
 #if ENABLE_LEDS
 #if ESP32 && ENABLE_LEDC
-        ledcAttach(m_Pin, m_ledcFrequency, m_ledcBits);  // define the PWM Setup
+        ledcAttachChannel(m_Pin, m_ledcFrequency, m_ledcBits, 5);  // define the PWM Setup
 #else
         pinMode(m_Pin, OUTPUT);
 #endif
